@@ -11,6 +11,12 @@
 - **Nothing hidden in setup.** Fixture generation, adapter construction and validation happen outside measured methods.
   Decoding of input bytes (images, input PDFs, HTML) is inside the measured operation for every library, because turning
   those inputs into PDF content is part of the work being compared.
+- **Every positioned line fits the page.** Fixture lines that libraries place at fixed coordinates (plain, rich and mixed
+  text) are cut to a character budget from a measured Noto Sans bound (0.64 em per character, worst case 0.622 for bold
+  "summary"), and an integration test measures every line of every profile size with the real fonts. A line that ran past
+  the page edge would be handled differently by different libraries (PDFsharp, PdfPig and UnlimitedPDF keep off-page
+  glyphs in the content stream; Skia drops them), so a fixture defect would look like one library's failure. Fixture
+  version 2026.11.1 had such lines; 2026.11.2 fixed them.
 - **Separate categories.** In-memory generation, file output, cold start, warm steady state, concurrency and long-running
   stress are reported separately and never combined into one score.
 

@@ -9,6 +9,15 @@ public static class PageGeometry
     public const double Height = 842;
     public const double Margin = 50;
     public const double ContentWidth = Width - 2 * Margin;
+
+    /// <summary>
+    /// Upper bound of the Noto Sans advance per character, in em, for the fixture vocabulary, line ids and spaces. The widest
+    /// case is "summary " in Noto Sans Bold at 0.622 em per character; Regular and Italic are narrower.
+    /// </summary>
+    public const double MaxEmPerCharacter = 0.64;
+
+    /// <summary>The most characters that are guaranteed to fit in <paramref name="width"/> points at <paramref name="fontSize"/>.</summary>
+    public static int MaxCharacters(double fontSize, double width) => (int)(width / (fontSize * MaxEmPerCharacter));
 }
 
 /// <summary>Deterministic word source. <see cref="Random"/> with a seed is stable across .NET versions.</summary>
@@ -23,15 +32,30 @@ public static class Words
         "total", "transfer", "update", "value", "vendor", "volume", "warehouse", "yearly", "approval", "review",
     ];
 
-    public static string Sentence(Random random, int minWords, int maxWords)
+    public static string Sentence(Random random, int minWords, int maxWords) => Sentence(random, minWords, maxWords, int.MaxValue);
+
+    /// <summary>
+    /// A sentence of at most <paramref name="maxCharacters"/> characters. Every word is still drawn from
+    /// <paramref name="random"/>, so later sentences do not depend on where this one was cut; at least one word is kept.
+    /// </summary>
+    public static string Sentence(Random random, int minWords, int maxWords, int maxCharacters)
     {
         var count = random.Next(minWords, maxWords + 1);
         var builder = new StringBuilder();
+        var full = false;
         for (var i = 0; i < count; i++)
         {
+            var word = Vocabulary[random.Next(Vocabulary.Length)];
+            if (full)
+                continue;
+            if (i > 0 && builder.Length + 1 + word.Length > maxCharacters)
+            {
+                full = true;
+                continue;
+            }
             if (i > 0)
                 builder.Append(' ');
-            builder.Append(Vocabulary[random.Next(Vocabulary.Length)]);
+            builder.Append(word);
         }
         return builder.ToString();
     }
@@ -70,7 +94,8 @@ public sealed class TextDocument
             var lines = new TextLine[LinesPerPage];
             for (var l = 0; l < LinesPerPage; l++)
             {
-                var text = $"{LineId(p, l + 1)} {Words.Sentence(random, 7, 10)}";
+                var id = LineId(p, l + 1);
+                var text = $"{id} {Words.Sentence(random, 7, 10, PageGeometry.MaxCharacters(FontSize, PageGeometry.ContentWidth) - id.Length - 1)}";
                 lines[l] = new TextLine(text, PageGeometry.Margin, FirstBaseline - l * LineHeight, FontSize);
             }
             result.Add(lines);
@@ -114,16 +139,18 @@ public sealed class RichTextDocument
             y -= 30;
             for (var block = 0; block < 6; block++)
             {
-                lines.Add(new TextLine($"P{p:D5}-B{block} {Words.Sentence(random, 3, 5)}", PageGeometry.Margin, y, 12, FontFace.Bold,
+                var heading = $"P{p:D5}-B{block} ";
+                lines.Add(new TextLine(heading + Words.Sentence(random, 3, 5, PageGeometry.MaxCharacters(12, PageGeometry.ContentWidth) - heading.Length),
+                    PageGeometry.Margin, y, 12, FontFace.Bold,
                     colored ? Palette[(block + 1) % Palette.Length] : null));
                 y -= 17;
                 for (var r = 0; r < 4; r++)
                 {
-                    lines.Add(new TextLine(Words.Sentence(random, 8, 11), PageGeometry.Margin, y, 11, FontFace.Regular,
+                    lines.Add(new TextLine(Words.Sentence(random, 8, 11, PageGeometry.MaxCharacters(11, PageGeometry.ContentWidth)), PageGeometry.Margin, y, 11, FontFace.Regular,
                         colored ? Palette[4] : null));
                     y -= 15;
                 }
-                lines.Add(new TextLine(Words.Sentence(random, 6, 9), PageGeometry.Margin + 12, y, 10, FontFace.Italic,
+                lines.Add(new TextLine(Words.Sentence(random, 6, 9, PageGeometry.MaxCharacters(10, PageGeometry.ContentWidth - 12)), PageGeometry.Margin + 12, y, 10, FontFace.Italic,
                     colored ? Palette[(block + 2) % Palette.Length] : null));
                 y -= 26;
             }

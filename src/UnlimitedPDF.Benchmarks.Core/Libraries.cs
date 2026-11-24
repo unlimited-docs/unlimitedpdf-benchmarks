@@ -46,7 +46,7 @@ public static class LibraryCatalog
             "https://github.com/UglyToad/PdfPig/blob/a7bb35662bbbf405efddad50aedc9bcdcf515afc/LICENSE",
             "https://github.com/UglyToad/PdfPig", "Licence also carries PDFBox, Adobe font metrics and CMap notices."),
         new(LibraryIds.SkiaSharp, "SkiaSharp", "SkiaSharp", "4.157.0", "4.157.0", "2026-11-18", "MIT",
-            "https://github.com/mono/SkiaSharp/blob/release/4.157.0/LICENSE.md",
+            "https://licenses.nuget.org/MIT",
             "https://github.com/mono/SkiaSharp", "Native Skia (BSD-3-Clause) and bundled components; HarfBuzzSharp (MIT) for complex-script shaping."),
     ];
 

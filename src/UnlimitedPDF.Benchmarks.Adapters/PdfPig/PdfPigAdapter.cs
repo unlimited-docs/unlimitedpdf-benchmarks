@@ -10,8 +10,7 @@ namespace UnlimitedPDF.Benchmarks.Adapters.PdfPig;
 
 /// <summary>
 /// PdfPig 0.1.16 (Apache-2.0) PdfDocumentBuilder and PdfMerger. TrueType fonts must be added to each builder, so the font file is
-/// parsed inside every measured document (PdfPig embeds the whole font file). PdfPig documents no complex-script shaping and has no
-/// table or flowing-layout API. Split, extract and remove copy pages with PdfDocumentBuilder.AddPage(document, pageNumber).
+/// parsed inside every measured document. PdfPig documents no complex-script shaping and has no table or flowing-layout API. Split, extract and remove copy pages with PdfDocumentBuilder.AddPage(document, pageNumber).
 /// </summary>
 public sealed class PdfPigAdapter :
     IEmptyDocumentGenerator, ITextDocumentGenerator, IStandardFontTextGenerator, IRichTextGenerator, IImageDocumentGenerator, IVectorGraphicsGenerator,

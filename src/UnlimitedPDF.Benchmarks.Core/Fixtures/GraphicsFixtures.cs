@@ -56,6 +56,10 @@ public sealed class VectorDocument
 public sealed class MixedDocument
 {
     public const int LinesPerPage = 20;
+
+    /// <summary>Sentence characters after the 11-character line id, so every 11 pt line fits the content width.</summary>
+    private static readonly int LineBudget = PageGeometry.MaxCharacters(11, PageGeometry.ContentWidth) - 11;
+
     public const double ImageX = 50;
     public const double ImageY = 400;
     public const double ImageWidth = 240;
@@ -87,9 +91,9 @@ public sealed class MixedDocument
         {
             var lines = new List<TextLine>(LinesPerPage);
             for (var l = 0; l < 10; l++)
-                lines.Add(new TextLine($"{TextDocument.LineId(p, l + 1)} {Words.Sentence(random, 6, 9)}", 50, 790 - l * 16, 11));
+                lines.Add(new TextLine($"{TextDocument.LineId(p, l + 1)} {Words.Sentence(random, 6, 9, LineBudget)}", 50, 790 - l * 16, 11));
             for (var l = 10; l < LinesPerPage; l++)
-                lines.Add(new TextLine($"{TextDocument.LineId(p, l + 1)} {Words.Sentence(random, 6, 9)}", 50, 360 - (l - 10) * 16, 11));
+                lines.Add(new TextLine($"{TextDocument.LineId(p, l + 1)} {Words.Sentence(random, 6, 9, LineBudget)}", 50, 360 - (l - 10) * 16, 11));
             text.Add(lines);
             var shapes = new List<Shape>();
             for (var i = 0; i < 10; i++)

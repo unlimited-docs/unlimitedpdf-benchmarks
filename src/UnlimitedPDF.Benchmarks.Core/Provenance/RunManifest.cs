@@ -194,7 +194,7 @@ public static class ComponentVersions
 /// <summary>Version and checksum of the deterministic fixtures, so results can be tied to their exact inputs.</summary>
 public static class FixtureManifest
 {
-    public const string Version = "2026.11.1";
+    public const string Version = "2026.11.2";
 
     public static IReadOnlyDictionary<string, string> FontChecksums() =>
         FontAssets.AllFaces.ToDictionary(f => FontAssets.FileName(f), FontAssets.Sha256);
