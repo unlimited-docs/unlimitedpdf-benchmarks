@@ -1,9 +1,11 @@
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Exporters.Json;
 using UnlimitedPDF.Benchmarks.Core;
 
 namespace UnlimitedPDF.Benchmarks.Runner;
 
 [MemoryDiagnoser]
+[JsonExporterAttribute.Full]
 public class EmptyPageBenchmarks
 {
     [Params(1, 10)]
