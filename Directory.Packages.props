@@ -6,7 +6,7 @@
     <PackageVersion Include="UnlimitedPDF" Version="1.1.0" />
     <PackageVersion Include="PDFsharp" Version="6.2.4" />
     <PackageVersion Include="PdfPig" Version="0.1.16" />
-    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.15" />
+    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="11.0.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.12.0" />
     <PackageVersion Include="xunit" Version="2.9.3" />
