@@ -147,8 +147,8 @@ dotnet run --project src/UnlimitedPDF.Benchmarks.Reporting -c Release --no-build
 dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- list --profile full
 ```
 
-Filtering: `--library` (UnlimitedPdf, PdfSharp, MigraDoc, PdfPig, SkiaSharp), `--category` (Generation, Layout,
-BusinessDocuments, Multilingual, Manipulation, HtmlToPdf, FileOutput), any BenchmarkDotNet option such as
+Filtering: `--library` (UnlimitedPdf, PdfSharp, MigraDoc, PdfPig, SkiaSharp), `--category` (comma-separated: Generation,
+Layout, BusinessDocuments, Multilingual, Manipulation, HtmlToPdf, FileOutput), any BenchmarkDotNet option such as
 `--filter '*TextBenchmarks.PdfPig*'`, `--job short` or `--runtimes net10.0`, and for the profiler `--suite ColdStart,Concurrent`.
 Document sizes and worker counts come from the profile.
 

@@ -21,8 +21,8 @@ public static class Program
           --profile smoke|quick|standard|full|stress   Parameter sizes and default job (default: standard).
           --output <folder>                            Run folder (default: results/<run-id>).
           --library <ids>                              Comma-separated library ids, e.g. UnlimitedPdf,PdfPig.
-          --category <name>                            Generation, Layout, BusinessDocuments, Multilingual,
-                                                       Manipulation, HtmlToPdf or FileOutput.
+          --category <names>                           Comma-separated: Generation, Layout, BusinessDocuments,
+                                                       Multilingual, Manipulation, HtmlToPdf, FileOutput.
           --timeout-minutes <n>                        Validation timeout per case (default: 20).
 
         Any other option goes to BenchmarkDotNet, for example --filter '*TableBenchmarks*' or --job short.
@@ -54,7 +54,14 @@ public static class Program
             logger.LogError("Unknown library '{Library}'. Use: {All}", unknown, string.Join(", ", LibraryIds.All));
             return 2;
         }
-        var category = TakeOption(remaining, "--category");
+        var categories = TakeOption(remaining, "--category")?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var knownCategories = ValidationPass.BenchmarkTypes().Select(t => ValidationPass.ScenarioOf(t).Category).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        if (categories is not null && categories.FirstOrDefault(c => !knownCategories.Contains(c)) is { } unknownCategory)
+        {
+            logger.LogError("Unknown category '{Category}'. Use: {All}", unknownCategory, string.Join(", ", knownCategories.Order()));
+            return 2;
+        }
         var timeout = TimeSpan.FromMinutes(int.Parse(TakeOption(remaining, "--timeout-minutes") ?? "20", System.Globalization.CultureInfo.InvariantCulture));
         var started = DateTimeOffset.UtcNow;
         var repositoryRoot = RunManifest.FindRepositoryRoot();
@@ -62,7 +69,7 @@ public static class Program
 
         bool Include(BenchmarkCaseDefinition c) =>
             (libraries is null || libraries.Contains(c.Library)) &&
-            (category is null || string.Equals(ValidationPass.ScenarioOf(c.Type).Category, category, StringComparison.OrdinalIgnoreCase));
+            (categories is null || categories.Contains(ValidationPass.ScenarioOf(c.Type).Category));
 
         if (mode == "list")
         {
@@ -100,8 +107,8 @@ public static class Program
         var validated = ValidationPass.Load(validationPath);
         var passed = validated.Count(r => r.Status == ResultStatus.Passed);
         logger.LogInformation("Measuring {Passed} validated cases with BenchmarkDotNet...", passed);
-        if (category is not null)
-            remaining.AddRange(["--anyCategories", category]);
+        if (categories is not null)
+            remaining.AddRange(["--anyCategories", .. categories.Select(c => knownCategories.First(k => string.Equals(k, c, StringComparison.OrdinalIgnoreCase)))]);
         if (!remaining.Contains("--filter") && !remaining.Contains("-f"))
             remaining.AddRange(["--filter", "*"]);
         var jobFromCommandLine = remaining.Contains("--job") || remaining.Contains("-j");
