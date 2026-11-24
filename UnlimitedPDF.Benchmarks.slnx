@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/UnlimitedPDF.Benchmarks.Core/UnlimitedPDF.Benchmarks.Core.csproj" />
+    <Project Path="src/UnlimitedPDF.Benchmarks.Runner/UnlimitedPDF.Benchmarks.Runner.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/UnlimitedPDF.Benchmarks.Tests/UnlimitedPDF.Benchmarks.Tests.csproj" />
+  </Folder>
+</Solution>
