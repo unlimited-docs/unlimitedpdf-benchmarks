@@ -31,7 +31,7 @@ jobs:
           BENCHMARK_JOB: ${{ inputs.job }}
         run: dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- --filter "*EmptyPageBenchmarks*" --job $env:BENCHMARK_JOB
         shell: pwsh
-      - uses: actions/upload-artifact@v4.6.2
+      - uses: actions/upload-artifact@v7.0.2
         if: always()
         with:
           name: benchmark-${{ inputs.os }}-${{ github.run_id }}
