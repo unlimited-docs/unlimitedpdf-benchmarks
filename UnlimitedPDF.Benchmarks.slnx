@@ -1,9 +1,13 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/UnlimitedPDF.Benchmarks.Core/UnlimitedPDF.Benchmarks.Core.csproj" />
+    <Project Path="src/UnlimitedPDF.Benchmarks.Adapters/UnlimitedPDF.Benchmarks.Adapters.csproj" />
     <Project Path="src/UnlimitedPDF.Benchmarks.Runner/UnlimitedPDF.Benchmarks.Runner.csproj" />
+    <Project Path="src/UnlimitedPDF.Benchmarks.ResourceProfiler/UnlimitedPDF.Benchmarks.ResourceProfiler.csproj" />
+    <Project Path="src/UnlimitedPDF.Benchmarks.Reporting/UnlimitedPDF.Benchmarks.Reporting.csproj" />
   </Folder>
   <Folder Name="/tests/">
-    <Project Path="tests/UnlimitedPDF.Benchmarks.Tests/UnlimitedPDF.Benchmarks.Tests.csproj" />
+    <Project Path="tests/UnlimitedPDF.Benchmarks.UnitTests/UnlimitedPDF.Benchmarks.UnitTests.csproj" />
+    <Project Path="tests/UnlimitedPDF.Benchmarks.IntegrationTests/UnlimitedPDF.Benchmarks.IntegrationTests.csproj" />
   </Folder>
 </Solution>
