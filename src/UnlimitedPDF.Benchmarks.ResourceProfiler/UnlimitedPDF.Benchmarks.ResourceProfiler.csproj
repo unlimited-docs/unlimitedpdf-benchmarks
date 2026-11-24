@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Description>Process-level measurements in isolated child processes: cold start, sequential and concurrent throughput, latency percentiles and long-running memory.</Description>
+    <ServerGarbageCollection>false</ServerGarbageCollection>
+    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
+    <TieredPGO>true</TieredPGO>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UnlimitedPDF.Benchmarks.Core\UnlimitedPDF.Benchmarks.Core.csproj" />
+    <ProjectReference Include="..\UnlimitedPDF.Benchmarks.Adapters\UnlimitedPDF.Benchmarks.Adapters.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+</Project>
