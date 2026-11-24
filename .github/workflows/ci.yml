@@ -32,6 +32,6 @@ jobs:
       pull-requests: write
     steps:
       - uses: actions/checkout@v4.2.2
-      - uses: actions/dependency-review-action@v4.8.2
+      - uses: actions/dependency-review-action@v5.0.1
         with:
           allow-licenses: MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Unicode-3.0
