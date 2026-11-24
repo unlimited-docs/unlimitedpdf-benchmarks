@@ -1,10 +1,26 @@
 version: 2
+# Dependabot cannot see licence changes. Every NuGet update must pass scripts/check-licenses.ps1 in CI, which rejects any
+# package without an allowed SPDX expression, and every PR is labelled for a manual licence and notice review.
 updates:
   - package-ecosystem: nuget
     directory: /
     schedule:
       interval: weekly
+    labels: [dependencies, license-review]
+    open-pull-requests-limit: 5
+    ignore:
+      # 6.5.0 and later are AGPL-3.0-only; 6.2.4 is the last MIT release.
+      - dependency-name: PDFsharp
+        versions: [">= 6.5.0"]
+      - dependency-name: PDFsharp-MigraDoc
+        versions: [">= 6.5.0"]
+    groups:
+      skiasharp:
+        patterns: ["SkiaSharp*", "HarfBuzzSharp*"]
+      test-and-tooling:
+        patterns: ["xunit*", "Microsoft.NET.Test.Sdk", "BenchmarkDotNet*", "Microsoft.Extensions.*"]
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: weekly
+    labels: [dependencies]
