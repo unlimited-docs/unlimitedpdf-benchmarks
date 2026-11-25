@@ -14,7 +14,8 @@ calculated against, not a presumed winner, and results are published whichever l
 ## Contents
 
 - [Objectives](#objectives) · [Libraries](#libraries) · [Licensing criteria](#commercial-licensing-criteria)
-- [Feature matrix](#feature-matrix) · [Benchmark categories](#benchmark-categories) · [Architecture](#architecture)
+- [Feature matrix](#feature-matrix) · [Results summary](#results-summary) · [Verdict](#verdict-when-to-choose-unlimitedpdf)
+- [Benchmark categories](#benchmark-categories) · [Architecture](#architecture)
 - [Getting started](#getting-started) · [Running benchmarks](#running-benchmarks) · [Profiles](#execution-profiles)
 - [Results and reports](#results-and-reports) · [Methodology](#methodology-summary) · [Limitations](#known-limitations)
 - [Contributing](#contributing) · [License](#license)
@@ -70,6 +71,86 @@ by the public API, so not benchmarked):
 | Devanagari, Telugu, Tamil shaping | N | — | — | — | C (HarfBuzz) |
 | Merge, split, extract, remove, reorder pages | N | N | — | N (merge native, rest via builder copy) | — |
 | HTML to PDF | N | — | — | — | — |
+
+## Results summary
+
+Results from the `full` and `stress` profiles on Windows 11 with an Intel Core i5-9400F (6 cores), .NET 10.0.14, recorded
+on 2026-11-25. The full tables, provenance and limitations are in
+[docs/results/2026-11-25-windows-i5-9400f.md](docs/results/2026-11-25-windows-i5-9400f.md). The machine is a single
+desktop that was not isolated, so treat the numbers as informational.
+
+- 320 cases passed independent validation and were measured.
+- 96 cases are unsupported by a library's public API, so they are declared and not ranked.
+- No case failed or timed out.
+
+**Ratio** = the competitor's mean time ÷ UnlimitedPDF's mean time. **Above 1** means UnlimitedPDF was faster; **below 1**
+means the competitor was faster.
+
+| Area | Compared with | Ratio | Faster |
+|---|---|---|---|
+| Merge PDFs (2 to 500 files) | PDFsharp / PdfPig | 1.16–1.80 / 1.82–78 | UnlimitedPDF in every case |
+| Business documents (nine kinds) | MigraDoc | 1.03–1.46 | UnlimitedPDF |
+| Invoice batches (100 and 1,000) | MigraDoc | 1.14–1.20 | UnlimitedPDF |
+| Simple tables (1,000 to 100,000 rows) | MigraDoc | 1.52–28.4 | UnlimitedPDF (100,000 rows: 10.6 s against 302 s) |
+| Simple table, 100 rows | MigraDoc | 0.88 | MigraDoc |
+| Tables with images | MigraDoc | 2.15–2.99 | UnlimitedPDF |
+| PNG images | PDFsharp, PdfPig, SkiaSharp | 6.2–15.7 | UnlimitedPDF |
+| Empty pages | PDFsharp, PdfPig, SkiaSharp | 1.24–3.13 | UnlimitedPDF |
+| Standard-font (Helvetica) text, 1 to 1,000 pages | PdfPig | 59–120 | UnlimitedPDF |
+| Split into page ranges | PDFsharp / PdfPig | 1.05–1.61 / 5.2–9.8 | UnlimitedPDF |
+| Split into single pages | PDFsharp / PdfPig | 0.60–1.61 / 5.1–8.1 | Mixed: PDFsharp faster at 5,000 pages |
+| Extract and reorder pages | PDFsharp / PdfPig | 0.90–1.15 / 1.39–6.8 | About level with PDFsharp |
+| Remove pages | PDFsharp / PdfPig | 0.64–0.70 / 2.9–4.1 | PDFsharp |
+| Embedded-font text, 10 pages or more | PDFsharp / PdfPig / SkiaSharp | 0.05–0.07 / 0.22–0.48 / 0.23–0.54 | Competitors |
+| Rich text (50 pages or more) and mixed content (10 pages or more) | PDFsharp, PdfPig, SkiaSharp | 0.06–0.91 | Competitors |
+| Rich text, 10 pages | PDFsharp / PdfPig / SkiaSharp | 0.12 / 1.36 / 1.40 | PDFsharp |
+| Headers, footers and page numbers | MigraDoc | 0.38–0.42 | MigraDoc |
+| Hindi, Telugu, Tamil, 10 to 100 pages | SkiaSharp + HarfBuzz | 0.06–0.68 | SkiaSharp |
+| Hindi, Telugu, Tamil, 1 page | SkiaSharp + HarfBuzz | 0.81–3.73 | UnlimitedPDF for Telugu and Tamil |
+| HTML to PDF | (no eligible competitor) | — | 4.6 ms (1 page) to 615 ms (70 pages) |
+
+Process-level results:
+
+- **Cold start**, from process start to the first valid PDF:
+  - 1-page text: 220 ms for SkiaSharp to 275 ms for UnlimitedPDF
+  - invoice: 297 ms for UnlimitedPDF against 348 ms for MigraDoc
+- **Invoice throughput with 16 workers:** UnlimitedPDF produced 448 documents per second against MigraDoc's 273, and 652
+  against 353 in the stress run.
+- **Single-threaded 1-page text:** PDFsharp is the clear leader, at 728 documents per second against UnlimitedPDF's 177.
+- **Memory over 10,000 documents:** no library's retained memory grew.
+- **Output size:** UnlimitedPDF 1.1.0 writes page content uncompressed, and it has no option to turn compression on. Its
+  embedded-font text output is about 23 KB per page, against 1.3 KB for PDFsharp.
+
+## Verdict: when to choose UnlimitedPDF
+
+**Choose UnlimitedPDF when you want one permissively licensed package that covers the whole document workflow.**
+
+- **Coverage.** It is the only library in this suite that offers all of these through its own public API:
+  - tables and flowing layout
+  - headers and footers
+  - Devanagari, Telugu and Tamil shaping
+  - merging, splitting and reordering pages
+  - HTML to PDF
+
+  The alternatives need two or three packages to cover the same ground, and none of them converts HTML.
+- **Licence.** It is Apache-2.0, with no revenue threshold, no deployment or document limits and no watermark.
+- **Where it measured fastest:**
+  - **Business documents and invoices.** It was faster than MigraDoc on all nine document kinds and on invoice batches,
+    and kept the lead under concurrency.
+  - **Large tables.** It stays roughly linear up to 100,000 rows, where MigraDoc slows sharply.
+  - **Merging PDFs.** It was fastest in every case, while also adding a bookmark per input file.
+  - **PNG images, standard-font text and empty pages.**
+
+**Consider an alternative when one of these dominates your workload:**
+
+- **High-volume, multi-page text with embedded fonts.** PDFsharp was 14 to 20 times faster.
+- **Small output files.** Content streams are uncompressed in 1.1.0.
+- **Coloured text or line and curve drawing.** 1.1.0 has neither.
+- **Long documents with many headers and footers.** MigraDoc was about 2.5 times faster.
+- **Long complex-script documents.** SkiaSharp with HarfBuzz was up to 16 times faster at 100 pages.
+
+These verdicts are for this machine and these library versions. Run `./scripts/run-benchmarks.ps1 -Profile standard` to
+check them against your own hardware and documents.
 
 ## Benchmark categories
 
