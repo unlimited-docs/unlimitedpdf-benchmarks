@@ -1,56 +1,284 @@
 # UnlimitedPDF.Benchmarks
 
-An open, reproducible comparison of the published UnlimitedPDF package with
-commercially usable open-source PDF libraries. This repository is associated
-with UnlimitedPDF; independent contributors and maintainers of other libraries
-are encouraged to review the implementations and methodology.
+Reproducible .NET benchmarks comparing the published [UnlimitedPDF](https://www.nuget.org/packages/UnlimitedPDF/) NuGet
+package with commercially free, open-source PDF libraries: execution time, managed allocation, garbage collection,
+process memory, throughput, latency, cold start, scalability, output size and output correctness.
 
-## Current status
+This is a neutral benchmarking project, not a marketing demonstration. UnlimitedPDF is the **baseline** that ratios are
+calculated against, not a presumed winner, and results are published whichever library performs better.
 
-This is an **initial foundation**, not the complete benchmark suite. It
-compares in-memory creation and serialization of 1 and 10 blank A4 pages using
-UnlimitedPDF 1.1.0, PDFsharp 6.2.4 and PdfPig 0.1.16. An independent parser
-checks page count and dimensions before timing. Empty pages do not establish
-correctness or comparative performance for text, graphics, tables or any other
-feature. No overall winner can be inferred.
+> **Affiliation.** This repository is associated with UnlimitedPDF. It benchmarks only the public NuGet release, never a
+> modified build. Other library names and trademarks belong to their respective owners. Maintainers of the other libraries
+> and independent contributors are invited to review and improve every implementation here.
 
-See [licenses](docs/library-licenses.md) for the licensing policy, evidence
-and important PDFsharp version caveat. The matrix and unimplemented scenarios
-are in [feature comparison](docs/feature-comparison.md); measurement caveats
-are in [methodology](docs/methodology.md).
+## Contents
+
+- [Objectives](#objectives) · [Libraries](#libraries) · [Licensing criteria](#commercial-licensing-criteria)
+- [Feature matrix](#feature-matrix) · [Results summary](#results-summary) · [Verdict](#verdict-when-to-choose-unlimitedpdf)
+- [Benchmark categories](#benchmark-categories) · [Architecture](#architecture)
+- [Getting started](#getting-started) · [Running benchmarks](#running-benchmarks) · [Profiles](#execution-profiles)
+- [Results and reports](#results-and-reports) · [Methodology](#methodology-summary) · [Limitations](#known-limitations)
+- [Contributing](#contributing) · [License](#license)
+
+## Objectives
+
+1. **Performance**: execution time, per-document latency and throughput.
+2. **Memory efficiency**: managed allocation and GC, and separately process working set, private bytes and retained heap.
+3. **Output correctness**: every output is validated independently before it is measured; invalid output is never ranked.
+4. **Commercial freedom**: only libraries usable in proprietary commercial software without fees, revenue thresholds,
+   watermarks or source-disclosure obligations.
+
+## Libraries
+
+| Library | Package and version | Licence | Role |
+|---|---|---|---|
+| UnlimitedPDF | `UnlimitedPDF` 1.1.0 | Apache-2.0 | Baseline |
+| PDFsharp | `PDFsharp` 6.2.4 | MIT | Drawing and page manipulation (last MIT release; 6.5.0+ is AGPL) |
+| PDFsharp-MigraDoc | `PDFsharp-MigraDoc` 6.2.4 | MIT | PDFsharp's official layout companion: tables, headers, flowing documents |
+| PdfPig | `PdfPig` 0.1.16 | Apache-2.0 | Document builder and merger |
+| SkiaSharp | `SkiaSharp` 4.157.0 (+ `SkiaSharp.HarfBuzz`) | MIT | Skia PDF backend; HarfBuzz shaping for Indic scripts |
+
+Excluded after review (details in [library licenses](docs/library-licenses.md)): **Microsoft.Playwright**, because HTML
+to PDF through it requires a separately downloaded Chromium browser and a Node.js driver running as external processes,
+and this suite compares self-contained NuGet libraries only. Also excluded: PDFsharp/MigraDoc 6.5.0+ (AGPL-3.0-only),
+current QuestPDF (revenue-conditioned community licence) and iText (AGPL/commercial). Validation uses PDFium through
+`Docnet.Core` 2.6.0 (MIT); it is never benchmarked.
+
+## Commercial licensing criteria
+
+A library in the primary suite must be open source; allow use in proprietary commercial applications without buying a
+licence; have no revenue threshold, no developer, server, deployment or document-count limits and no watermark; and not
+require disclosure of application source code merely because it is used. Permissive licences (MIT, Apache-2.0, BSD)
+are preferred. Licences are verified per exact package version, including transitive packages and native binaries, and
+`scripts/check-licenses.ps1` enforces the policy in CI. Copyleft licences are not "non-commercial"; their obligations are
+simply outside this project's permissive policy.
+
+## Feature matrix
+
+Summary of [docs/feature-comparison.md](docs/feature-comparison.md) (N = native, C = companion package, — = not offered
+by the public API, so not benchmarked):
+
+| Capability | UnlimitedPDF | PDFsharp | MigraDoc | PdfPig | SkiaSharp |
+|---|---|---|---|---|---|
+| Positioned text, embedded TrueType fonts | N | N | — | N | N |
+| Standard (non-embedded) Helvetica | N | — | — | N | — |
+| Bold/italic faces, sizes | N | N | N | N | N |
+| Text colour | — | N | N | N | N |
+| Images (JPEG, PNG) | N | N | N | N | N |
+| Lines, strokes, curves | — (filled rectangles only) | N | — | N | N |
+| Tables with pagination and repeated headers | N | — (C: MigraDoc) | N | — | — |
+| Headers, footers, page numbers, flowing body | N | — (C: MigraDoc) | N | — | — |
+| Devanagari, Telugu, Tamil shaping | N | — | — | — | C (HarfBuzz) |
+| Merge, split, extract, remove, reorder pages | N | N | — | N (merge native, rest via builder copy) | — |
+| HTML to PDF | N | — | — | — | — |
+
+## Results summary
+
+Results from the `full` and `stress` profiles on Windows 11 with an Intel Core i5-9400F (6 cores), .NET 10.0.14, recorded
+on 2026-11-25. The full tables, provenance and limitations are in
+[docs/results/2026-11-25-windows-i5-9400f.md](docs/results/2026-11-25-windows-i5-9400f.md). The machine is a single
+desktop that was not isolated, so treat the numbers as informational.
+
+- 320 cases passed independent validation and were measured.
+- 96 cases are unsupported by a library's public API, so they are declared and not ranked.
+- No case failed or timed out.
+
+**Ratio** = the competitor's mean time ÷ UnlimitedPDF's mean time. **Above 1** means UnlimitedPDF was faster; **below 1**
+means the competitor was faster.
+
+| Area | Compared with | Ratio | Faster |
+|---|---|---|---|
+| Merge PDFs (2 to 500 files) | PDFsharp / PdfPig | 1.16–1.80 / 1.82–78 | UnlimitedPDF in every case |
+| Business documents (nine kinds) | MigraDoc | 1.03–1.46 | UnlimitedPDF |
+| Invoice batches (100 and 1,000) | MigraDoc | 1.14–1.20 | UnlimitedPDF |
+| Simple tables (1,000 to 100,000 rows) | MigraDoc | 1.52–28.4 | UnlimitedPDF (100,000 rows: 10.6 s against 302 s) |
+| Simple table, 100 rows | MigraDoc | 0.88 | MigraDoc |
+| Tables with images | MigraDoc | 2.15–2.99 | UnlimitedPDF |
+| PNG images | PDFsharp, PdfPig, SkiaSharp | 6.2–15.7 | UnlimitedPDF |
+| Empty pages | PDFsharp, PdfPig, SkiaSharp | 1.24–3.13 | UnlimitedPDF |
+| Standard-font (Helvetica) text, 1 to 1,000 pages | PdfPig | 59–120 | UnlimitedPDF |
+| Split into page ranges | PDFsharp / PdfPig | 1.05–1.61 / 5.2–9.8 | UnlimitedPDF |
+| Split into single pages | PDFsharp / PdfPig | 0.60–1.61 / 5.1–8.1 | Mixed: PDFsharp faster at 5,000 pages |
+| Extract and reorder pages | PDFsharp / PdfPig | 0.90–1.15 / 1.39–6.8 | About level with PDFsharp |
+| Remove pages | PDFsharp / PdfPig | 0.64–0.70 / 2.9–4.1 | PDFsharp |
+| Embedded-font text, 10 pages or more | PDFsharp / PdfPig / SkiaSharp | 0.05–0.07 / 0.22–0.48 / 0.23–0.54 | Competitors |
+| Rich text (50 pages or more) and mixed content (10 pages or more) | PDFsharp, PdfPig, SkiaSharp | 0.06–0.91 | Competitors |
+| Rich text, 10 pages | PDFsharp / PdfPig / SkiaSharp | 0.12 / 1.36 / 1.40 | PDFsharp |
+| Headers, footers and page numbers | MigraDoc | 0.38–0.42 | MigraDoc |
+| Hindi, Telugu, Tamil, 10 to 100 pages | SkiaSharp + HarfBuzz | 0.06–0.68 | SkiaSharp |
+| Hindi, Telugu, Tamil, 1 page | SkiaSharp + HarfBuzz | 0.81–3.73 | UnlimitedPDF for Telugu and Tamil |
+| HTML to PDF | (no eligible competitor) | — | 4.6 ms (1 page) to 615 ms (70 pages) |
+
+Process-level results:
+
+- **Cold start**, from process start to the first valid PDF:
+  - 1-page text: 220 ms for SkiaSharp to 275 ms for UnlimitedPDF
+  - invoice: 297 ms for UnlimitedPDF against 348 ms for MigraDoc
+- **Invoice throughput with 16 workers:** UnlimitedPDF produced 448 documents per second against MigraDoc's 273, and 652
+  against 353 in the stress run.
+- **Single-threaded 1-page text:** PDFsharp is the clear leader, at 728 documents per second against UnlimitedPDF's 177.
+- **Memory over 10,000 documents:** no library's retained memory grew.
+- **Output size:** UnlimitedPDF 1.1.0 writes page content uncompressed, and it has no option to turn compression on. Its
+  embedded-font text output is about 23 KB per page, against 1.3 KB for PDFsharp.
+
+## Verdict: when to choose UnlimitedPDF
+
+**Choose UnlimitedPDF when you want one permissively licensed package that covers the whole document workflow.**
+
+- **Coverage.** It is the only library in this suite that offers all of these through its own public API:
+  - tables and flowing layout
+  - headers and footers
+  - Devanagari, Telugu and Tamil shaping
+  - merging, splitting and reordering pages
+  - HTML to PDF
+
+  The alternatives need two or three packages to cover the same ground, and none of them converts HTML.
+- **Licence.** It is Apache-2.0, with no revenue threshold, no deployment or document limits and no watermark.
+- **Where it measured fastest:**
+  - **Business documents and invoices.** It was faster than MigraDoc on all nine document kinds and on invoice batches,
+    and kept the lead under concurrency.
+  - **Large tables.** It stays roughly linear up to 100,000 rows, where MigraDoc slows sharply.
+  - **Merging PDFs.** It was fastest in every case, while also adding a bookmark per input file.
+  - **PNG images, standard-font text and empty pages.**
+
+**Consider an alternative when one of these dominates your workload:**
+
+- **High-volume, multi-page text with embedded fonts.** PDFsharp was 14 to 20 times faster.
+- **Small output files.** Content streams are uncompressed in 1.1.0.
+- **Coloured text or line and curve drawing.** 1.1.0 has neither.
+- **Long documents with many headers and footers.** MigraDoc was about 2.5 times faster.
+- **Long complex-script documents.** SkiaSharp with HarfBuzz was up to 16 times faster at 100 pages.
+
+These verdicts are for this machine and these library versions. Run `./scripts/run-benchmarks.ps1 -Profile standard` to
+check them against your own hardware and documents.
+
+## Benchmark categories
+
+Measurement categories are reported separately and never combined into a single score.
+
+| Category | Tool | What it covers |
+|---|---|---|
+| In-memory generation | BenchmarkDotNet | Empty, plain text (embedded and standard font), rich and coloured text, images, vector graphics, mixed content |
+| Layout | BenchmarkDotNet | Tables (10 to 100,000 rows), tables with images, headers/footers/page numbers |
+| Business documents | BenchmarkDotNet | Invoice, purchase order, quotation, sales report, bank statement, payslip, catalogue, financial and tabular reports; invoice batches |
+| Multilingual | BenchmarkDotNet | English, Hindi, Telugu, Tamil and mixed scripts |
+| Manipulation | BenchmarkDotNet | Merge, split per page and per range, extract, remove and reorder pages |
+| HTML to PDF | BenchmarkDotNet | Simple HTML and HTML with tables, CSS and images (UnlimitedPDF only; absolute values) |
+| File output | BenchmarkDotNet | End-to-end generation written to a file |
+| Cold start | ResourceProfiler | Fresh process: process start to first valid PDF, library initialisation |
+| Sequential and concurrent | ResourceProfiler | Docs/s, pages/s, P50/P95/P99 latency, CPU, 1 to 16 workers |
+| Long-running and stress | ResourceProfiler | Working set, private bytes, managed heap, retained heap, threads, handles over 1,000 to 10,000 documents |
+
+Every scenario, its sizes and its validation rules are listed in [docs/benchmark-scenarios.md](docs/benchmark-scenarios.md).
+
+## Architecture
+
+```
+src/
+  UnlimitedPDF.Benchmarks.Core/              fixtures, independent validation, profiles, provenance (no benchmarked code paths)
+  UnlimitedPDF.Benchmarks.Adapters/          one folder per library; capability interfaces (ITableGenerator, IPdfMerger, ...)
+  UnlimitedPDF.Benchmarks.Runner/            BenchmarkDotNet scenarios, validation pass, validated-case filter
+  UnlimitedPDF.Benchmarks.ResourceProfiler/  isolated child processes: cold start, throughput, latency, memory over time
+  UnlimitedPDF.Benchmarks.Reporting/         report.html, summary.md, results.csv, results.json from raw data
+tests/
+  UnlimitedPDF.Benchmarks.UnitTests/         fixtures, statistics, validator rejection cases, profiles
+  UnlimitedPDF.Benchmarks.IntegrationTests/  every scenario x library validated by PDFium; profiler; reporting
+assets/fonts/                                Noto fonts (SIL OFL 1.1) shared by every library
+scripts/                                     run-benchmarks, generate-reports, check-licenses
+```
+
+Details: [docs/architecture.md](docs/architecture.md).
 
 ## Getting started
 
-Install the .NET 10 SDK. Windows and Linux are intended targets. From the
-repository root:
+Prerequisites: the .NET 10 SDK on Windows or Linux (x64). No paid services, licence keys, cloud resources, browsers or
+network access are needed after NuGet restore.
 
 ```sh
 dotnet restore UnlimitedPDF.Benchmarks.slnx --locked-mode
 dotnet build UnlimitedPDF.Benchmarks.slnx -c Release --no-restore
 dotnet test UnlimitedPDF.Benchmarks.slnx -c Release --no-build --no-restore
-dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- --filter '*EmptyPageBenchmarks*' --job short
+pwsh ./scripts/check-licenses.ps1
 ```
 
-PowerShell: `./scripts/benchmark.ps1 --filter '*EmptyPageBenchmarks*' --job short`.
-Bash: `bash scripts/benchmark.sh --filter '*EmptyPageBenchmarks*' --job short`.
-Use `--job Dry` for a functional smoke run (not meaningful performance data),
-or omit `--job` for BenchmarkDotNet's default measurements. See `--help` for
-BenchmarkDotNet filters and other options. There are not yet dedicated
-smoke/quick/standard/full/stress profiles.
+## Running benchmarks
 
-BenchmarkDotNet writes raw logs and Markdown, CSV, HTML and JSON exports to
-`BenchmarkDotNet.Artifacts/`, which is ignored by git. Preserve the whole
-directory and record the commit and environment when sharing results. Results
-from GitHub-hosted runners are informational; use controlled hardware for
-authoritative comparisons. No benchmark results are shipped or fabricated.
+The scripts build, validate every case, measure the passing cases with BenchmarkDotNet, run the resource profiler in
+isolated processes and generate the reports into `results/<run-id>/`.
 
-## Architecture and contributions
+```powershell
+./scripts/run-benchmarks.ps1 -Profile quick
+./scripts/run-benchmarks.ps1 -Profile standard -Category Manipulation -Library UnlimitedPdf,PdfPig
+./scripts/run-benchmarks.ps1 -Profile all            # full, then stress, each in its own run folder
+./scripts/run-benchmarks.ps1 -Profile smoke -- --filter '*TableBenchmarks*'
+```
 
-The Core project contains generation and independent validation, Runner contains
-the BenchmarkDotNet workloads, and Tests verifies outputs. For a new workload,
-define equivalent inputs and semantics, implement each library with its public
-API, validate with an independent parser outside the timed method, and add
-tests before adding it to comparisons. Unsupported or unverified features are
-not benchmarked. Contributors should read [AGENTS.md](AGENTS.md) and
-[methodology](docs/methodology.md); dependency upgrades require renewed license
-and vulnerability review. Repository license: [Apache 2.0](LICENSE).
+```sh
+bash scripts/run-benchmarks.sh --profile quick
+bash scripts/run-benchmarks.sh --profile standard --category Layout --library UnlimitedPdf,MigraDoc
+```
+
+Direct `dotnet` commands (the scripts run exactly these):
+
+```sh
+dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- validate --profile standard --output results/my-run
+dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- bench --profile standard --output results/my-run --filter '*Merge*'
+dotnet run --project src/UnlimitedPDF.Benchmarks.ResourceProfiler -c Release --no-build -- --profile standard --output results/my-run
+dotnet run --project src/UnlimitedPDF.Benchmarks.Reporting -c Release --no-build -- results/my-run
+dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- list --profile full
+```
+
+Filtering: `--library` (UnlimitedPdf, PdfSharp, MigraDoc, PdfPig, SkiaSharp), `--category` (comma-separated: Generation,
+Layout, BusinessDocuments, Multilingual, Manipulation, HtmlToPdf, FileOutput), any BenchmarkDotNet option such as
+`--filter '*TextBenchmarks.PdfPig*'`, `--job short` or `--runtimes net10.0`, and for the profiler `--suite ColdStart,Concurrent`.
+Document sizes and worker counts come from the profile.
+
+## Execution profiles
+
+| Profile | BenchmarkDotNet job | Purpose |
+|---|---|---|
+| `smoke` | Dry (one invocation) | Proves every implementation compiles, runs and produces valid PDFs; not a measurement |
+| `quick` | ShortRun | Reduced sizes for local development |
+| `standard` | Default | Representative comparison |
+| `full` | Default | Every standard size (text 1 to 1,000 pages, tables to 1,000 rows, merges to 100 files, 1 to 16 workers) |
+| `stress` | Monitoring (1 warm-up, 5 single invocations) | Largest sizes only: 5,000-page text, 100,000-row tables, 500-file merges, 10,000-document long runs |
+
+`full` and `stress` together cover every planned size once.
+
+## Results and reports
+
+Each run folder contains `manifest.json` (run id, UTC time, commit, environment, component versions, fixture checksum),
+`validation.json` (status of every case), `samples/` (representative PDFs and PDFium renders), `bdn/` (raw
+BenchmarkDotNet logs and Markdown, CSV, HTML and JSON exports), `profiler/results.json`, and the generated
+`report.html` (self-contained, with charts), `summary.md`, `results.csv` and `results.json`. Reports can be regenerated
+from the raw files with `scripts/generate-reports.ps1`. Raw run folders are not committed; documented runs are in
+[docs/results](docs/results/).
+
+## Methodology summary
+
+Fixtures are deterministic and identical for every library, including the same font files and image bytes; manipulation
+inputs come from an independent PDF writer that no benchmarked library produced. Preparation and validation happen outside
+measured methods. Each output is validated by PDFium (page count, size, extracted text, rendered ink and colour) and by a
+parser other than its producer (font embedding and images). Only passed cases are measured, and ratios are calculated
+only against a passed baseline. See [methodology](docs/methodology.md) and
+[interpreting results](docs/interpreting-results.md).
+
+## Known limitations
+
+- One machine's results do not transfer to another; GitHub-hosted runners are informational only.
+- Library defaults differ (compression, metadata, font subsetting); output sizes and some costs reflect those defaults.
+- UnlimitedPDF 1.1.0 has no text colour or stroked/curved vector API, so those scenarios have no baseline and no ratios.
+- HTML to PDF has no eligible self-contained competitor, so it reports absolute UnlimitedPDF values only.
+- Complex-script shaping is validated by text extraction and checked visually from the kept samples; there is no
+  automated glyph-by-glyph shaping comparison.
+- Native memory is visible only through process working set and private bytes; it is never derived by subtraction.
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), [AGENTS.md](AGENTS.md), the [code of conduct](CODE_OF_CONDUCT.md) and the
+[security policy](SECURITY.md). New libraries and scenarios need equivalent inputs, an adapter using the public API,
+independent validation and tests, and a licence review.
+
+## License
+
+[Apache 2.0](LICENSE). Third-party components and fonts: [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

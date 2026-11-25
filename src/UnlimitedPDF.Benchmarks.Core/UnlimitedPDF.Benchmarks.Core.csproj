@@ -1,10 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Description>Deterministic fixtures, independent output validation, profiles and run provenance. Contains no benchmarked library code paths.</Description>
+  </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="UnlimitedPDF" />
-    <PackageReference Include="PDFsharp" />
+    <!-- Independent validators. PDFium (Docnet.Core) is never benchmarked. -->
+    <PackageReference Include="Docnet.Core" />
     <PackageReference Include="PdfPig" />
+    <PackageReference Include="PDFsharp" />
     <PackageReference Include="System.Security.Cryptography.Pkcs" />
+    <!-- Only used to encode deterministic JPEG fixtures. -->
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\assets\fonts\*.ttf" Link="assets\fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\assets\fonts\OFL-*.txt" Link="assets\fonts\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

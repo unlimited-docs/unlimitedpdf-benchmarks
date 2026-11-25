@@ -2,32 +2,99 @@
   "version": 2,
   "dependencies": {
     "net10.0": {
-      "Microsoft.NET.Test.Sdk": {
+      "HarfBuzzSharp": {
         "type": "Direct",
-        "requested": "[18.12.0, )",
-        "resolved": "18.12.0",
-        "contentHash": "MdVkskM2ZCKSlNts5DIbz9MZidX7SwcXKBoBqY4XT91b30hAwC8PkjWbdGKRak6BKAD1BQqaZnh/SD0AJGoDCQ==",
+        "requested": "[14.4.0.200, )",
+        "resolved": "14.4.0.200",
+        "contentHash": "lQgGQyBXnIZWH5PdDmSttKSx/PNGXP+FuOxrQOiAkJwYgKY7z8Q1St/aaDt7w70VkReWTDwNnfKyap+JyWYETQ==",
         "dependencies": {
-          "Microsoft.CodeCoverage": "18.12.0",
-          "Microsoft.TestPlatform.TestHost": "18.12.0"
+          "HarfBuzzSharp.NativeAssets.Win32": "14.4.0.200",
+          "HarfBuzzSharp.NativeAssets.macOS": "14.4.0.200"
         }
       },
-      "xunit": {
+      "HarfBuzzSharp.NativeAssets.Linux": {
         "type": "Direct",
-        "requested": "[2.9.3, )",
-        "resolved": "2.9.3",
-        "contentHash": "TlXQBinK35LpOPKHAqbLY4xlEen9TBafjs0V5KnA4wZsoQLQJiirCR4CbIXvOH8NzkW4YeJKP5P/Bnrodm0h9Q==",
+        "requested": "[14.4.0.200, )",
+        "resolved": "14.4.0.200",
+        "contentHash": "uDpYgXX2wXTI9Og7Qw1XNzaCiZloshLfHUvOg3ZWPjipynYVmMSCRl3Y5UeNAVEq5fOaGfs47tljueP7kXpfoQ=="
+      },
+      "PdfPig": {
+        "type": "Direct",
+        "requested": "[0.1.16, )",
+        "resolved": "0.1.16",
+        "contentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA=="
+      },
+      "PDFsharp": {
+        "type": "Direct",
+        "requested": "[6.2.4, )",
+        "resolved": "6.2.4",
+        "contentHash": "GhTr9F1uOYXHCIEOB5PXIgqn5a8WLsJL2m0eewTA0IvY1j6N4HGXHKKmEyB90/N6vrjmYamf41V9zbmdW2HY3g==",
         "dependencies": {
-          "xunit.analyzers": "1.18.0",
-          "xunit.assert": "2.9.3",
-          "xunit.core": "[2.9.3]"
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.3",
+          "System.Security.Cryptography.Pkcs": "8.0.1"
         }
       },
-      "xunit.runner.visualstudio": {
+      "PDFsharp-MigraDoc": {
         "type": "Direct",
-        "requested": "[3.1.5, )",
-        "resolved": "3.1.5",
-        "contentHash": "tKi7dSTwP4m5m9eXPM2Ime4Kn7xNf4x4zT9sdLO/G4hZVnQCRiMTWoSZqI/pYTVeI27oPPqHBKYI/DjJ9GsYgA=="
+        "requested": "[6.2.4, )",
+        "resolved": "6.2.4",
+        "contentHash": "ZlRUJaAAo4K2oMt1v02GTeGOHIOoOvcH1e1WYMpunCG1MK8jd4EBrbzSHoYSN7yOfKWFtOIUfzvmKhRGPsyWQQ==",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.3",
+          "PDFsharp": "6.2.4",
+          "System.Security.Cryptography.Pkcs": "8.0.1"
+        }
+      },
+      "SkiaSharp": {
+        "type": "Direct",
+        "requested": "[4.157.0, )",
+        "resolved": "4.157.0",
+        "contentHash": "C0PYSs8z0OGihExuIPaCEJnoEmDwiVRTFmDI2TZ44rWr2u7UiQX4rZyEwfVSHEiV5Zn/FYh1WbcO9uMPRxAsbw==",
+        "dependencies": {
+          "SkiaSharp.NativeAssets.Win32": "4.157.0",
+          "SkiaSharp.NativeAssets.macOS": "4.157.0"
+        }
+      },
+      "SkiaSharp.HarfBuzz": {
+        "type": "Direct",
+        "requested": "[4.157.0, )",
+        "resolved": "4.157.0",
+        "contentHash": "2Ik/kZsXxpd1xXljaU6QGcRsFJPlMaLMF91sLfdHFJHFa6XqlAOu08mXDEBQw2RTRwpWOl77sCtDXSiSkB0O+Q==",
+        "dependencies": {
+          "HarfBuzzSharp": "14.4.0.200",
+          "SkiaSharp": "4.157.0"
+        }
+      },
+      "SkiaSharp.NativeAssets.Linux.NoDependencies": {
+        "type": "Direct",
+        "requested": "[4.157.0, )",
+        "resolved": "4.157.0",
+        "contentHash": "7skQaAxilNr4giLQPr1HMTFrwhUAJKI2Qlr7Djybi/e24Td/F4j7lIRf7DKJeHfH9mdxvD000o/NciDd8lSg5A=="
+      },
+      "System.Security.Cryptography.Pkcs": {
+        "type": "Direct",
+        "requested": "[10.0.15, )",
+        "resolved": "10.0.15",
+        "contentHash": "4jEv/lXDuQkh60lPU3hlwASErXdv1ZMKmsxVuBfZWiVKT5Q2QGo58kTa6rN519+PU+m4Hsj1m3yT8fN+Xw0XZw=="
+      },
+      "UnlimitedPDF": {
+        "type": "Direct",
+        "requested": "[1.1.0, )",
+        "resolved": "1.1.0",
+        "contentHash": "CiyyIH0FWraxf94y/zDayPd0lrxA2PNpBVFuOtVFl/Ok1kItukr8Bcgo2hbcOghjPSjMTdFBaA6i3rB9fznbHQ==",
+        "dependencies": {
+          "Microsoft.AspNetCore.Components.Web": "10.0.0"
+        }
+      },
+      "HarfBuzzSharp.NativeAssets.macOS": {
+        "type": "Transitive",
+        "resolved": "14.4.0.200",
+        "contentHash": "sEmhsa7cy8ggQKnYB8FKQgLmBMNBsueGlhAisRm0TOVdgQamChzYEb9nN119cRmXLWlXEsPY5x+HKOMdWy4Vvw=="
+      },
+      "HarfBuzzSharp.NativeAssets.Win32": {
+        "type": "Transitive",
+        "resolved": "14.4.0.200",
+        "contentHash": "lCY77jIIBi1nDne3V0OEDanbCTxxdDbeaR+cXD1/k9MuyfFXy7MLPGbi4iXvVhV1LBBAV/sWLR1wbqSNOedbiQ=="
       },
       "Microsoft.AspNetCore.Authorization": {
         "type": "Transitive",
@@ -79,11 +146,6 @@
         "type": "Transitive",
         "resolved": "10.0.0",
         "contentHash": "uMXReBNxJKabrdoxHn4LNDTlGQFGDPtntlVvqo/b0HaxJzeDAIMFXJJ64mufJCNRuQU/Pus8ngcTZErvnsh7vg=="
-      },
-      "Microsoft.CodeCoverage": {
-        "type": "Transitive",
-        "resolved": "18.12.0",
-        "contentHash": "OhOPSaCAQhBJgXF1OrX0uK3eTkwZ1XnM44iGLZplYgKrmgKzQUdv9xtGGaE568RuQ738TlrTJ3pm9aWL5FH7iw=="
       },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
@@ -191,98 +253,32 @@
         "resolved": "10.0.0",
         "contentHash": "Qfs4KtmfMUQ/BtD4jdt753kiAa7frm1QVms8UHiFArOokoXBkBOOKE2N5APdt3BlAdTSFJNiuDFfgDzVq/3EZg=="
       },
-      "Microsoft.TestPlatform.ObjectModel": {
+      "SkiaSharp.NativeAssets.macOS": {
         "type": "Transitive",
-        "resolved": "18.12.0",
-        "contentHash": "ilT2o4v/c1joLgsfzS4dYQ71bWAy/RsA6fBY7f5OEUpUsUhwIzoliGeXdS3yctWuy4NZyuSVlO7dPX4ed7R06A=="
+        "resolved": "4.157.0",
+        "contentHash": "s44YB0BMAEudDf/AdcJLCcN6AXxhpKto0ZnJjats1TwNC+SD4mI2FhotDft58M593Ocea1ra6ad5slfJBhxfvg=="
       },
-      "Microsoft.TestPlatform.TestHost": {
+      "SkiaSharp.NativeAssets.Win32": {
         "type": "Transitive",
-        "resolved": "18.12.0",
-        "contentHash": "WTT912JUqmFa2BkCeXPkMCUpbYOqsbeRfRJdhaIQROx49iokgnGPAlKvXmHWKC9nJwWrHwSQfR+k+Qn7NCxfzw==",
-        "dependencies": {
-          "Microsoft.TestPlatform.ObjectModel": "18.12.0"
-        }
-      },
-      "xunit.abstractions": {
-        "type": "Transitive",
-        "resolved": "2.0.3",
-        "contentHash": "pot1I4YOxlWjIb5jmwvvQNbTrZ3lJQ+jUGkGjWE3hEFM0l5gOnBWS+H3qsex68s5cO52g+44vpGzhAt+42vwKg=="
-      },
-      "xunit.analyzers": {
-        "type": "Transitive",
-        "resolved": "1.18.0",
-        "contentHash": "OtFMHN8yqIcYP9wcVIgJrq01AfTxijjAqVDy/WeQVSyrDC1RzBWeQPztL49DN2syXRah8TYnfvk035s7L95EZQ=="
-      },
-      "xunit.assert": {
-        "type": "Transitive",
-        "resolved": "2.9.3",
-        "contentHash": "/Kq28fCE7MjOV42YLVRAJzRF0WmEqsmflm0cfpMjGtzQ2lR5mYVj1/i0Y8uDAOLczkL3/jArrwehfMD0YogMAA=="
-      },
-      "xunit.core": {
-        "type": "Transitive",
-        "resolved": "2.9.3",
-        "contentHash": "BiAEvqGvyme19wE0wTKdADH+NloYqikiU0mcnmiNyXaF9HyHmE6sr/3DC5vnBkgsWaE6yPyWszKSPSApWdRVeQ==",
-        "dependencies": {
-          "xunit.extensibility.core": "[2.9.3]",
-          "xunit.extensibility.execution": "[2.9.3]"
-        }
-      },
-      "xunit.extensibility.core": {
-        "type": "Transitive",
-        "resolved": "2.9.3",
-        "contentHash": "kf3si0YTn2a8J8eZNb+zFpwfoyvIrQ7ivNk5ZYA5yuYk1bEtMe4DxJ2CF/qsRgmEnDr7MnW1mxylBaHTZ4qErA==",
-        "dependencies": {
-          "xunit.abstractions": "2.0.3"
-        }
-      },
-      "xunit.extensibility.execution": {
-        "type": "Transitive",
-        "resolved": "2.9.3",
-        "contentHash": "yMb6vMESlSrE3Wfj7V6cjQ3S4TXdXpRqYeNEI3zsX31uTsGMJjEw6oD5F5u1cHnMptjhEECnmZSsPxB6ChZHDQ==",
-        "dependencies": {
-          "xunit.extensibility.core": "[2.9.3]"
-        }
+        "resolved": "4.157.0",
+        "contentHash": "tP54cTnPqGrzf2pBcyupMZWdIUjV34ELdKuh3/c329kRQF4UCVLZvilQZrDMqPJ9P/+AUJC8kDRMBgT/jBvYug=="
       },
       "unlimitedpdf.benchmarks.core": {
         "type": "Project",
         "dependencies": {
+          "Docnet.Core": "[2.6.0, )",
           "PDFsharp": "[6.2.4, )",
           "PdfPig": "[0.1.16, )",
-          "System.Security.Cryptography.Pkcs": "[10.0.15, )",
-          "UnlimitedPDF": "[1.1.0, )"
+          "SkiaSharp": "[4.157.0, )",
+          "SkiaSharp.NativeAssets.Linux.NoDependencies": "[4.157.0, )",
+          "System.Security.Cryptography.Pkcs": "[10.0.15, )"
         }
       },
-      "PdfPig": {
+      "Docnet.Core": {
         "type": "CentralTransitive",
-        "requested": "[0.1.16, )",
-        "resolved": "0.1.16",
-        "contentHash": "qQcbsNMYVY+K5ELptax2S8thNMk0+rSQq3H/KdYj3LLcko8yTCz8y5KIvsKxIyAuTN0ZYNnfsZkM+0EvxTwHVA=="
-      },
-      "PDFsharp": {
-        "type": "CentralTransitive",
-        "requested": "[6.2.4, )",
-        "resolved": "6.2.4",
-        "contentHash": "GhTr9F1uOYXHCIEOB5PXIgqn5a8WLsJL2m0eewTA0IvY1j6N4HGXHKKmEyB90/N6vrjmYamf41V9zbmdW2HY3g==",
-        "dependencies": {
-          "Microsoft.Extensions.Logging.Abstractions": "8.0.3",
-          "System.Security.Cryptography.Pkcs": "8.0.1"
-        }
-      },
-      "System.Security.Cryptography.Pkcs": {
-        "type": "CentralTransitive",
-        "requested": "[10.0.15, )",
-        "resolved": "10.0.15",
-        "contentHash": "4jEv/lXDuQkh60lPU3hlwASErXdv1ZMKmsxVuBfZWiVKT5Q2QGo58kTa6rN519+PU+m4Hsj1m3yT8fN+Xw0XZw=="
-      },
-      "UnlimitedPDF": {
-        "type": "CentralTransitive",
-        "requested": "[1.1.0, )",
-        "resolved": "1.1.0",
-        "contentHash": "CiyyIH0FWraxf94y/zDayPd0lrxA2PNpBVFuOtVFl/Ok1kItukr8Bcgo2hbcOghjPSjMTdFBaA6i3rB9fznbHQ==",
-        "dependencies": {
-          "Microsoft.AspNetCore.Components.Web": "10.0.0"
-        }
+        "requested": "[2.6.0, )",
+        "resolved": "2.6.0",
+        "contentHash": "in7fpB16Zbdz7D7Qv+4QrapTKKOU1ub2XOvmVGVDEyEwnEZjlbGIiwmpfO03q/GDDEkDM/gIAumxK0U988qSsQ=="
       }
     }
   }

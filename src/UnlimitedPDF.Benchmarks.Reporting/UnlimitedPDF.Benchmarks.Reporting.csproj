@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <Description>Regenerates report.html, summary.md, results.csv and results.json from a run folder's raw data.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\UnlimitedPDF.Benchmarks.Core\UnlimitedPDF.Benchmarks.Core.csproj" />
+  </ItemGroup>
+
+</Project>

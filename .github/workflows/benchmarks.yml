@@ -1,15 +1,25 @@
 name: Benchmarks
+# Manual only. Results from shared GitHub-hosted runners are informational; use controlled hardware for authoritative comparisons.
 on:
   workflow_dispatch:
     inputs:
+      profile:
+        description: Execution profile
+        type: choice
+        options: [smoke, quick, standard, full, stress]
+        default: quick
+      category:
+        description: Optional category (Generation, Layout, BusinessDocuments, Multilingual, Manipulation, HtmlToPdf, FileOutput)
+        type: string
+        default: ''
+      library:
+        description: Optional comma-separated libraries (UnlimitedPdf, PdfSharp, MigraDoc, PdfPig, SkiaSharp)
+        type: string
+        default: ''
       os:
         type: choice
         options: [ubuntu-latest, windows-latest]
         default: ubuntu-latest
-      job:
-        type: choice
-        options: [Dry, short, medium, long]
-        default: short
 
 permissions:
   contents: read
@@ -17,7 +27,7 @@ permissions:
 jobs:
   benchmark:
     runs-on: ${{ inputs.os }}
-    timeout-minutes: 90
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4.2.2
       - uses: actions/setup-dotnet@v4.3.1
@@ -27,13 +37,19 @@ jobs:
       - run: dotnet build UnlimitedPDF.Benchmarks.slnx -c Release --no-restore
       - run: dotnet test UnlimitedPDF.Benchmarks.slnx -c Release --no-build --no-restore
       - name: Benchmark
-        env:
-          BENCHMARK_JOB: ${{ inputs.job }}
-        run: dotnet run --project src/UnlimitedPDF.Benchmarks.Runner -c Release --no-build -- --filter "*EmptyPageBenchmarks*" --job $env:BENCHMARK_JOB
         shell: pwsh
+        env:
+          PROFILE: ${{ inputs.profile }}
+          CATEGORY: ${{ inputs.category }}
+          LIBRARY: ${{ inputs.library }}
+        run: |
+          $args = @{ Profile = $env:PROFILE; SkipBuild = $true; Output = 'results/ci-run' }
+          if ($env:CATEGORY) { $args.Category = $env:CATEGORY }
+          if ($env:LIBRARY) { $args.Library = $env:LIBRARY -split ',' }
+          ./scripts/run-benchmarks.ps1 @args
       - uses: actions/upload-artifact@v4.6.2
         if: always()
         with:
-          name: benchmark-${{ inputs.os }}-${{ github.run_id }}
-          path: BenchmarkDotNet.Artifacts/
+          name: benchmark-${{ inputs.profile }}-${{ inputs.os }}-${{ github.run_id }}
+          path: results/ci-run/
           if-no-files-found: warn
